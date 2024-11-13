@@ -1,0 +1,24 @@
+[general]
+
+library_name = "tblis"
+
+use_julia_native_enum_type = true
+use_deterministic_symbol = true
+auto_mutability = true
+
+output_ignorelist = [
+    "TCI_WORK_ITEM_INIT",
+    "TBLIS_RESTRICT",
+    "scomplex",
+    "dcomplex",
+]
+
+[codegen]
+use_ccall_macro = true
+
+[codegen.macro]
+macro_mode = "basic"
+
+functionlike_macro_includelist = [
+
+]

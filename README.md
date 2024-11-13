@@ -1,52 +1,22 @@
 # TBLIS.jl
-[![CI](https://github.com/FermiQC/TBLIS.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/FermiQC/TBLIS.jl/actions/workflows/CI.yml)
 
+[![CI][ci-img]][ci-url]  [![][codecov-img]][codecov-url]
 
-> If you are planning to use TBLIS with TensorOperations.jl a more convenient option might be the [BliContractor.jl](https://github.com/xrq-phys/BliContractor.jl) package.
-Julia wrapper for TBLIS tensor contraction library.
+[ci-img]: https://github.com/QuantumKitHub/TBLIS.jl/actions/workflows/ci.yml/badge.svg
+[ci-url]: https://github.com/QuantumKitHub/TBLIS.jl/actions/workflows/ci.yml
 
-Currently only tensor addition and multiplication are implemented.
+[codecov-img]: https://codecov.io/gh/QuantumKitHub/TBLIS.jl/graph/badge.svg?token=Nlju9D2P1A
+[codecov-url]: https://codecov.io/gh/QuantumKitHub/TBLIS.jl
 
-## Install
-```
-julia>]
-pkg>add TBLIS
-```
+Julia wrapper for the [TBLIS](https://github.com/devinamatthews/tblis) tensor contraction library.
+This provides basic bindings for the functions defined in TBLIS.
+The target audience is mostly package developers rather than users, as the interface is low-level
+and does not include argument checking.
 
-> Due to an issue with `tblis_jll`, TBLIS is not working on MAC.
+For users, it is recommended to try out:
+- [TensorOperations.jl](https://github.com/Jutho/TensorOperations.jl)
+- [ITensors.jl](https://github.com/ITensor/ITensors.jl)
 
-## Usage
-```
-using TBLIS
-TBLIS.init()
+## Acknowledgements
 
-TT = Float32
-O = 10
-V = 50
-
-_A = rand(TT,O,O,O,O)
-_B = rand(TT,O,O,V,V)
-_C = zeros(TT,O,O,V,V)
-```
-Arrays must be converted to TTensor objects. 
-```
-A = TBLIS.TTensor(_A)
-B = TBLIS.TTensor(_B)
-C = TBLIS.TTensor(_C)
-```
-This object only creates a pointer to the original data.
-```
-julia> A.data === _A
-true
-```
-* For a general contraction, the syntax is `TBLIS.mul!(C, A, B, Aind, Bind, Cind)`
-where `Aind`, `Bind`, and `Cind` are strings following Einstein's notation.
-
-* Addition is performing following `TBLIS.add!(A, B, Aind, Bind)`. 
-```
-# C[i,j,a,b] += A[i,j,k,l]*B[k,l,a,b]
-TBLIS.mul!(C, A, B, "ijkl", "klab", "ijab")
-
-# B += A
-TBLIS.add!(A, B, "ijkl", "ijkl")
-```
+This package is the continuation of a package previously hosted by https://github.com/FermiQC/TBLIS.jl.

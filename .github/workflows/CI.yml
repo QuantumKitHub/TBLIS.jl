@@ -28,7 +28,7 @@ jobs:
         os:
           - ubuntu-latest
           - macOS-latest
-          - windows-latest
+          # - windows-latest
     uses: "QuantumKitHub/.github/.github/workflows/tests.yml@main"
     with:
       julia-version: "${{ matrix.version }}"

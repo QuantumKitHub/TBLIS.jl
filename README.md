@@ -2,8 +2,8 @@
 
 [![CI][ci-img]][ci-url]  [![][codecov-img]][codecov-url]
 
-[ci-img]: https://github.com/QuantumKitHub/TBLIS.jl/actions/workflows/ci.yml/badge.svg
-[ci-url]: https://github.com/QuantumKitHub/TBLIS.jl/actions/workflows/ci.yml
+[ci-img]: https://github.com/QuantumKitHub/TBLIS.jl/actions/workflows/CI.yml/badge.svg
+[ci-url]: https://github.com/QuantumKitHub/TBLIS.jl/actions/workflows/CI.yml
 
 [codecov-img]: https://codecov.io/gh/QuantumKitHub/TBLIS.jl/graph/badge.svg?token=Nlju9D2P1A
 [codecov-url]: https://codecov.io/gh/QuantumKitHub/TBLIS.jl

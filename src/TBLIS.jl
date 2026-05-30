@@ -76,7 +76,7 @@ for (T, tblis_init_scalar, tblis_init_tensor, tblis_init_tensor_scaled) in
             return t[]
         end
         function tblis_tensor(A::StridedArray{$T,N},
-                              s::Number=one(T),
+                              s::Number=one($T),
                               szA::Vector{len_type}=collect(len_type, size(A)),
                               strA::Vector{stride_type}=collect(stride_type, strides(A))) where {N}
             t = Ref{tblis_tensor}()

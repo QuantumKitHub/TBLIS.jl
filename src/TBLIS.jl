@@ -49,6 +49,17 @@ end
 
 # Constructors
 # ------------
+
+# Wrapper that keeps metadata and parent array alive to prevent:
+#   - dims/strides vectors getting GC'd (len/stride pointers dangle)
+#   - parent array getting GC'd (data pointer dangles)
+mutable struct TblisTensor{T}
+    tensor::tblis_tensor
+    dims::Vector{len_type}
+    strides::Vector{stride_type}
+    parent::StridedArray{T}
+end
+
 @doc """
     tblis_scalar(s::Number)
 
@@ -56,13 +67,11 @@ Initializes a tblis scalar from a number.
 """ tblis_scalar
 
 @doc """
-    tblis_tensor(A::StridedArray{T<:BlasFloat}, [scalar::Number, szA::Vector{Int}, strA::Vector{Int})
+    tblis_tensor(A::StridedArray, [scalar::Number])
 
-Initializes a tblis tensor from an array that should be strided and admit a pointer to its
-data. This operation is deemed unsafe, in the sense that the user is responsible for
-ensuring that the reference to the array and the sizes and strides stays alive during the
-lifetime of the tensor.
-""" tblis_tensor
+Initializes a tblis tensor from a strided array. Returns a TblisTensor wrapper
+that keeps metadata arrays and the parent array alive for GC safety.
+""" TblisTensor
 
 for (T, tblis_init_scalar, tblis_init_tensor, tblis_init_tensor_scaled) in
     ((:Float32, :tblis_init_scalar_s, :tblis_init_tensor_s, :tblis_init_tensor_scaled_s),
@@ -86,7 +95,7 @@ for (T, tblis_init_scalar, tblis_init_tensor, tblis_init_tensor_scaled) in
                 $tblis_init_tensor_scaled(t, $T(s), N, pointer(szA), pointer(A),
                                           pointer(strA))
             end
-            return t[]
+            return TblisTensor{$T}(t[], szA, strA, A)
         end
     end
 end
@@ -94,35 +103,37 @@ end
 # Operations
 # ----------
 """
-    tblis_tensor_add(A::tblis_tensor, idxA::String, B::tblis_tensor, idxB::String)
+    tblis_tensor_add(A::TblisTensor, idxA::String, B::TblisTensor, idxB::String)
 
 Tensor operation of the form ``B... := α A... + β B...``.
 """
-function tblis_tensor_add(A::tblis_tensor, idxA::AbstractString,
-                          B::tblis_tensor, idxB::AbstractString)
-    return tblis_tensor_add(C_NULL, C_NULL, Ref(A), idxA, Ref(B), idxB)
+function tblis_tensor_add(A::TblisTensor, idxA::AbstractString,
+                          B::TblisTensor, idxB::AbstractString)
+    return tblis_tensor_add(C_NULL, C_NULL, Ref(A.tensor), idxA, Ref(B.tensor), idxB)
 end
 
 """
-    tblis_tensor_mult(A::tblis_tensor, idx::String, B::tblis_tensor, idxB::String, C::tblis_tensor, idxC::String)
+    tblis_tensor_mult(A::TblisTensor, idx::String, B::TblisTensor, idxB::String, C::TblisTensor, idxC::String)
 
 Tensor operation of the form ``C... := α A... * B... + β C...``.
 """
-function tblis_tensor_mult(A::tblis_tensor, idxA::AbstractString,
-                           B::tblis_tensor, idxB::AbstractString,
-                           C::tblis_tensor, idxC::AbstractString)
-    return tblis_tensor_mult(C_NULL, C_NULL, Ref(A), idxA, Ref(B), idxB, Ref(C), idxC)
+function tblis_tensor_mult(A::TblisTensor, idxA::AbstractString,
+                           B::TblisTensor, idxB::AbstractString,
+                           C::TblisTensor, idxC::AbstractString)
+    return tblis_tensor_mult(C_NULL, C_NULL, Ref(A.tensor), idxA,
+                             Ref(B.tensor), idxB, Ref(C.tensor), idxC)
 end
 
 """
-    tblis_tensor_dot()
+    tblis_tensor_dot(A::TblisTensor, idxA::String, B::TblisTensor, idxB::String, C::tblis_scalar)
 
 Tensor operation of the form ``C := α A... * B...``
 """
-function tblis_tensor_dot(A::tblis_tensor, idxA::AbstractString,
-                          B::tblis_tensor, idxB::AbstractString,
+function tblis_tensor_dot(A::TblisTensor, idxA::AbstractString,
+                          B::TblisTensor, idxB::AbstractString,
                           C::tblis_scalar)
-    return tblis_tensor_dot(C_NULL, C_NULL, Ref(A), idxA, Ref(B), idxB, Ref(C))
+    return tblis_tensor_dot(C_NULL, C_NULL, Ref(A.tensor), idxA,
+                            Ref(B.tensor), idxB, Ref(C))
 end
 
 # Utility

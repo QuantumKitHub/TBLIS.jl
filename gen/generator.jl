@@ -24,8 +24,17 @@ tblis_h = joinpath(include_dir, "tblis", "tblis.h")
 # load common option
 options = load_options(joinpath(@__DIR__, "generator.toml"))
 
-# run generator for all platforms
-for target in JLLEnvs.JLL_ENV_TRIPLES
+# the platforms tblis_jll actually ships binaries for
+# (x86_64-linux-musl is only available up to tblis_jll 1.2)
+const TARGETS = ["x86_64-apple-darwin14",
+                 "x86_64-linux-gnu",
+                 "x86_64-linux-musl",
+                 "x86_64-unknown-freebsd13.2",
+                 "x86_64-w64-mingw32"]
+
+# run generator for all supported platforms
+for target in TARGETS
+    @assert target in JLLEnvs.JLL_ENV_TRIPLES "unknown target triple $target"
     @info "processing $target"
     options["general"]["output_file_path"] = joinpath(outpath, "$target.jl")
     path = options["general"]["output_file_path"]

@@ -46,29 +46,33 @@ function tci_barrier_node_wait(barrier)
     @ccall tblis.tci_barrier_node_wait(barrier::Ptr{tci_barrier_node})::Cint
 end
 
-struct var"union (unnamed at /mnt/home/ldevos/.julia/artifacts/88acd4122206bc00423af187fad99a0fb01f433e/include/tci/barrier.h:43:5)"
+struct __JL_Ctag_8
     data::NTuple{24,UInt8}
 end
 
-function Base.getproperty(x::Ptr{var"union (unnamed at /mnt/home/ldevos/.julia/artifacts/88acd4122206bc00423af187fad99a0fb01f433e/include/tci/barrier.h:43:5)"},
-                          f::Symbol)
+function Base.getproperty(x::Ptr{__JL_Ctag_8}, f::Symbol)
     f === :array && return Ptr{Ptr{tci_barrier_node}}(x + 0)
     f === :single && return Ptr{tci_barrier_node}(x + 0)
     return getfield(x, f)
 end
 
-function Base.getproperty(x::var"union (unnamed at /mnt/home/ldevos/.julia/artifacts/88acd4122206bc00423af187fad99a0fb01f433e/include/tci/barrier.h:43:5)",
-                          f::Symbol)
-    r = Ref{var"union (unnamed at /mnt/home/ldevos/.julia/artifacts/88acd4122206bc00423af187fad99a0fb01f433e/include/tci/barrier.h:43:5)"}(x)
-    ptr = Base.unsafe_convert(Ptr{var"union (unnamed at /mnt/home/ldevos/.julia/artifacts/88acd4122206bc00423af187fad99a0fb01f433e/include/tci/barrier.h:43:5)"},
-                              r)
+function Base.getproperty(x::__JL_Ctag_8, f::Symbol)
+    r = Ref{__JL_Ctag_8}(x)
+    ptr = Base.unsafe_convert(Ptr{__JL_Ctag_8}, r)
     fptr = getproperty(ptr, f)
     GC.@preserve r unsafe_load(fptr)
 end
 
-function Base.setproperty!(x::Ptr{var"union (unnamed at /mnt/home/ldevos/.julia/artifacts/88acd4122206bc00423af187fad99a0fb01f433e/include/tci/barrier.h:43:5)"},
-                           f::Symbol, v)
+function Base.setproperty!(x::Ptr{__JL_Ctag_8}, f::Symbol, v)
     return unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::__JL_Ctag_8, private::Bool=false)
+    return (:array, :single, if private
+                fieldnames(typeof(x))
+            else
+                ()
+            end...)
 end
 
 struct tci_barrier
@@ -76,9 +80,7 @@ struct tci_barrier
 end
 
 function Base.getproperty(x::Ptr{tci_barrier}, f::Symbol)
-    f === :barrier &&
-        return Ptr{var"union (unnamed at /mnt/home/ldevos/.julia/artifacts/88acd4122206bc00423af187fad99a0fb01f433e/include/tci/barrier.h:43:5)"}(x +
-                                                                                                                                                  0)
+    f === :barrier && return Ptr{__JL_Ctag_8}(x + 0)
     f === :nthread && return Ptr{Cuint}(x + 24)
     f === :group_size && return Ptr{Cuint}(x + 28)
     f === :is_tree && return Ptr{Cint}(x + 32)
@@ -94,6 +96,14 @@ end
 
 function Base.setproperty!(x::Ptr{tci_barrier}, f::Symbol, v)
     return unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::tci_barrier, private::Bool=false)
+    return (:barrier, :nthread, :group_size, :is_tree, if private
+                fieldnames(typeof(x))
+            else
+                ()
+            end...)
 end
 
 function tci_barrier_is_tree(barrier)
@@ -114,9 +124,33 @@ function tci_barrier_wait(barrier, tid)
 end
 
 struct tci_context
-    barrier::tci_barrier
-    buffer::Ptr{Cvoid}
-    refcount::Cuint
+    data::NTuple{56,UInt8}
+end
+
+function Base.getproperty(x::Ptr{tci_context}, f::Symbol)
+    f === :barrier && return Ptr{tci_barrier}(x + 0)
+    f === :buffer && return Ptr{Ptr{Cvoid}}(x + 40)
+    f === :refcount && return Ptr{Cuint}(x + 48)
+    return getfield(x, f)
+end
+
+function Base.getproperty(x::tci_context, f::Symbol)
+    r = Ref{tci_context}(x)
+    ptr = Base.unsafe_convert(Ptr{tci_context}, r)
+    fptr = getproperty(ptr, f)
+    GC.@preserve r unsafe_load(fptr)
+end
+
+function Base.setproperty!(x::Ptr{tci_context}, f::Symbol, v)
+    return unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::tci_context, private::Bool=false)
+    return (:barrier, :buffer, :refcount, if private
+                fieldnames(typeof(x))
+            else
+                ()
+            end...)
 end
 
 function tci_context_init(context, nthread, group_size)
@@ -386,6 +420,14 @@ function Base.setproperty!(x::Ptr{scalar}, f::Symbol, v)
     return unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::scalar, private::Bool=false)
+    return (:s, :d, :c, :z, if private
+                fieldnames(typeof(x))
+            else
+                ()
+            end...)
+end
+
 struct tblis_scalar
     data::NTuple{24,UInt8}
 end
@@ -407,6 +449,14 @@ function Base.setproperty!(x::Ptr{tblis_scalar}, f::Symbol, v)
     return unsafe_store!(getproperty(x, f), v)
 end
 
+function Base.propertynames(x::tblis_scalar, private::Bool=false)
+    return (:data, :type, if private
+                fieldnames(typeof(x))
+            else
+                ()
+            end...)
+end
+
 function tblis_init_scalar_s(s, value)
     @ccall tblis.tblis_init_scalar_s(s::Ptr{tblis_scalar}, value::Cfloat)::Cvoid
 end
@@ -423,14 +473,37 @@ function tblis_init_scalar_z(s, value)
     @ccall tblis.tblis_init_scalar_z(s::Ptr{tblis_scalar}, value::dcomplex)::Cvoid
 end
 
-mutable struct tblis_vector
-    type::type_t
-    conj::Cint
-    scalar::tblis_scalar
-    data::Ptr{Cvoid}
-    n::len_type
-    inc::stride_type
-    tblis_vector() = new()
+struct tblis_vector
+    data::NTuple{56,UInt8}
+end
+
+function Base.getproperty(x::Ptr{tblis_vector}, f::Symbol)
+    f === :type && return Ptr{type_t}(x + 0)
+    f === :conj && return Ptr{Cint}(x + 4)
+    f === :scalar && return Ptr{tblis_scalar}(x + 8)
+    f === :data && return Ptr{Ptr{Cvoid}}(x + 32)
+    f === :n && return Ptr{len_type}(x + 40)
+    f === :inc && return Ptr{stride_type}(x + 48)
+    return getfield(x, f)
+end
+
+function Base.getproperty(x::tblis_vector, f::Symbol)
+    r = Ref{tblis_vector}(x)
+    ptr = Base.unsafe_convert(Ptr{tblis_vector}, r)
+    fptr = getproperty(ptr, f)
+    GC.@preserve r unsafe_load(fptr)
+end
+
+function Base.setproperty!(x::Ptr{tblis_vector}, f::Symbol, v)
+    return unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::tblis_vector, private::Bool=false)
+    return (:type, :conj, :scalar, :data, :n, :inc, if private
+                fieldnames(typeof(x))
+            else
+                ()
+            end...)
 end
 
 function tblis_init_vector_scaled_s(v, scalar_, n, data, inc)
@@ -477,16 +550,39 @@ function tblis_init_vector_z(v, n, data, inc)
                                      inc::stride_type)::Cvoid
 end
 
-mutable struct tblis_matrix
-    type::type_t
-    conj::Cint
-    scalar::tblis_scalar
-    data::Ptr{Cvoid}
-    m::len_type
-    n::len_type
-    rs::stride_type
-    cs::stride_type
-    tblis_matrix() = new()
+struct tblis_matrix
+    data::NTuple{72,UInt8}
+end
+
+function Base.getproperty(x::Ptr{tblis_matrix}, f::Symbol)
+    f === :type && return Ptr{type_t}(x + 0)
+    f === :conj && return Ptr{Cint}(x + 4)
+    f === :scalar && return Ptr{tblis_scalar}(x + 8)
+    f === :data && return Ptr{Ptr{Cvoid}}(x + 32)
+    f === :m && return Ptr{len_type}(x + 40)
+    f === :n && return Ptr{len_type}(x + 48)
+    f === :rs && return Ptr{stride_type}(x + 56)
+    f === :cs && return Ptr{stride_type}(x + 64)
+    return getfield(x, f)
+end
+
+function Base.getproperty(x::tblis_matrix, f::Symbol)
+    r = Ref{tblis_matrix}(x)
+    ptr = Base.unsafe_convert(Ptr{tblis_matrix}, r)
+    fptr = getproperty(ptr, f)
+    GC.@preserve r unsafe_load(fptr)
+end
+
+function Base.setproperty!(x::Ptr{tblis_matrix}, f::Symbol, v)
+    return unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::tblis_matrix, private::Bool=false)
+    return (:type, :conj, :scalar, :data, :m, :n, :rs, :cs, if private
+                fieldnames(typeof(x))
+            else
+                ()
+            end...)
 end
 
 function tblis_init_matrix_scaled_s(mat, scalar_, m, n, data, rs, cs)
@@ -538,13 +634,38 @@ function tblis_init_matrix_z(mat, m, n, data, rs, cs)
 end
 
 struct tblis_tensor
-    type::type_t
-    conj::Cint
-    scalar::tblis_scalar
-    data::Ptr{Cvoid}
-    ndim::Cuint
-    len::Ptr{len_type}
-    stride::Ptr{stride_type}
+    data::NTuple{64,UInt8}
+end
+
+function Base.getproperty(x::Ptr{tblis_tensor}, f::Symbol)
+    f === :type && return Ptr{type_t}(x + 0)
+    f === :conj && return Ptr{Cint}(x + 4)
+    f === :scalar && return Ptr{tblis_scalar}(x + 8)
+    f === :data && return Ptr{Ptr{Cvoid}}(x + 32)
+    f === :ndim && return Ptr{Cuint}(x + 40)
+    f === :len && return Ptr{Ptr{len_type}}(x + 48)
+    f === :stride && return Ptr{Ptr{stride_type}}(x + 56)
+    return getfield(x, f)
+end
+
+function Base.getproperty(x::tblis_tensor, f::Symbol)
+    r = Ref{tblis_tensor}(x)
+    ptr = Base.unsafe_convert(Ptr{tblis_tensor}, r)
+    fptr = getproperty(ptr, f)
+    GC.@preserve r unsafe_load(fptr)
+end
+
+function Base.setproperty!(x::Ptr{tblis_tensor}, f::Symbol, v)
+    return unsafe_store!(getproperty(x, f), v)
+end
+
+function Base.propertynames(x::tblis_tensor, private::Bool=false)
+    return (:type, :conj, :scalar, :data, :ndim, :len, :stride,
+            if private
+                fieldnames(typeof(x))
+            else
+                ()
+            end...)
 end
 
 function tblis_init_tensor_scaled_s(t, scalar_, ndim, len, data, stride)
@@ -762,19 +883,17 @@ const TBLIS_LT_OBJDIR = ".libs/"
 
 const TBLIS_PACKAGE = "tblis"
 
-const TBLIS_PACKAGE_BUGREPORT = "dmatthews@utexas.edu"
+const TBLIS_PACKAGE_BUGREPORT = "damatthews@smu.edu"
 
 const TBLIS_PACKAGE_NAME = "tblis"
 
-const TBLIS_PACKAGE_STRING = "tblis 1.2.0"
+const TBLIS_PACKAGE_STRING = "tblis 1.3.0"
 
 const TBLIS_PACKAGE_TARNAME = "tblis"
 
 const TBLIS_PACKAGE_URL = "http://www.github.com/devinamatthews/tblis"
 
-const TBLIS_PACKAGE_VERSION = "1.2.0"
-
-# Skipping MacroDefinition: _tblis_restrict __restrict
+const TBLIS_PACKAGE_VERSION = "1.3.0"
 
 const TBLIS_STDC_HEADERS = 1
 
@@ -782,4 +901,10 @@ const TBLIS_STRIDE_TYPE = ptrdiff_t
 
 const TBLIS_TOPDIR = "/workspace/srcdir/tblis"
 
-const TBLIS_VERSION = "1.2.0"
+const TBLIS_VERSION = "1.3.0"
+
+const TBLIS_VERSION_MAJOR = 1
+
+const TBLIS_VERSION_MINOR = 3
+
+const TBLIS_VERSION_PATCH = 0

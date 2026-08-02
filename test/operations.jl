@@ -33,11 +33,12 @@ end
 
         expected = β * B + α * permutedims(A, perm)
 
-        # actual computation stores result in B
-        Atblis = @inferred tblis_tensor(A, α)
-        Btblis = @inferred tblis_tensor(B, β)
-        tblis_tensor_add(Atblis, idxA, Btblis, idxB)
+        # a full collection here would previously free the length and stride buffers that
+        # were handed to TBLIS, leading to a segfault
+        GC.gc(true)
 
+        # actual computation stores result in B
+        @test tblis_tensor_add(α, A, idxA, β, B, idxB) === B
         @test B ≈ expected
     end
 end
@@ -61,8 +62,7 @@ end
         ipB = invperm(pB)
         pAB = randperm(N1 + N3)
 
-        α₁ = rand(T)
-        α₂ = rand(T)
+        α = rand(T)
         β = rand(T)
         A = N1 + N2 > 0 ? rand(T, vcat(sz1, sz2)[ipA]...) : fill(rand(T))
         B = N2 + N3 > 0 ? rand(T, vcat(sz2, sz3)[ipB]...) : fill(rand(T))
@@ -70,24 +70,55 @@ end
 
         Aperm = ndims(A) > 0 ? permutedims(A, tuple(pA...)) : A
         Bperm = ndims(B) > 0 ? permutedims(B, tuple(pB...)) : B
-        AB = (α₁ * α₂) * reshape(reshape(Aperm, prod(sz1), prod(sz2)) *
-                                 reshape(Bperm, prod(sz2), prod(sz3)),
-                                 sz1..., sz3...)
+        AB = α * reshape(reshape(Aperm, prod(sz1), prod(sz2)) *
+                         reshape(Bperm, prod(sz2), prod(sz3)),
+                         sz1..., sz3...)
         expected = ndims(C) == 0 ? AB + β * C : permutedims(AB, tuple(pAB...)) + β * C
-
-        # actual computation stores result in C
-        Atblis = tblis_tensor(A, α₁)
-        Btblis = tblis_tensor(B, α₂)
-        Ctblis = tblis_tensor(C, β)
 
         idx = string(('a' .+ (0:(N1 + N2 + N3 - 1)))...)
         idxA = idx[1:(N1 + N2)][ipA]
         idxB = idx[N1 .+ (1:(N2 + N3))][ipB]
         idxC = idx[vcat(1:N1, (N1 + N2 + 1):end)][pAB]
-        tblis_tensor_mult(Atblis, idxA, Btblis, idxB, Ctblis, idxC)
 
+        GC.gc(true)
+
+        # actual computation stores result in C
+        @test tblis_tensor_mult(α, A, idxA, B, idxB, β, C, idxC) === C
         @test C ≈ expected
     end
+end
+
+@testset "tblis_tensor_dot (ndims=$N, eltype=$T)" for T in eltypes, N in 0:4
+    for _ in 1:5 # repeat tests
+        szA = rand(1:4, N)
+        perm = randperm(N)
+
+        idxA = string(('a' .+ (0:(N - 1)))...)
+        idxB = idxA[perm]
+
+        A = N > 0 ? rand(T, szA...) : fill(rand(T))
+        B = N > 0 ? rand(T, szA[perm]...) : fill(rand(T))
+        α = rand(T)
+
+        # note that TBLIS does not conjugate A
+        # (`permutedims` of a zero-dimensional array is only supported from Julia 1.11 on)
+        Bperm = N > 0 ? permutedims(B, invperm(perm)) : B
+        expected = α * sum(A .* Bperm)
+
+        GC.gc(true)
+
+        result = @inferred tblis_tensor_dot(α, A, idxA, B, idxB)
+        @test result isa T
+        @test result ≈ expected
+    end
+end
+
+@testset "element type mismatch" begin
+    A = rand(Float64, 2, 2)
+    B = rand(Float32, 2, 2)
+    @test_throws ArgumentError tblis_tensor_add(1.0, A, "ab", 1.0, B, "ab")
+    @test_throws ArgumentError tblis_tensor_mult(1.0, A, "ab", A, "bc", 1.0, B, "ac")
+    @test_throws ArgumentError tblis_tensor_dot(1.0, A, "ab", B, "ab")
 end
 
 end

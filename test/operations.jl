@@ -101,7 +101,9 @@ end
         α = rand(T)
 
         # note that TBLIS does not conjugate A
-        expected = α * sum(A .* permutedims(B, invperm(perm)))
+        # (`permutedims` of a zero-dimensional array is only supported from Julia 1.11 on)
+        Bperm = N > 0 ? permutedims(B, invperm(perm)) : B
+        expected = α * sum(A .* Bperm)
 
         GC.gc(true)
 

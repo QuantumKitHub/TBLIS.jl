@@ -58,29 +58,43 @@ _lengths(A::StridedArray) = collect(len_type, size(A))
 _strides(A::StridedArray) = collect(stride_type, strides(A))
 
 for (T, S, tblis_init_scalar, tblis_init_tensor, tblis_init_tensor_scaled) in
-    ((:Float32, :s, :tblis_init_scalar_s, :tblis_init_tensor_s,
-      :tblis_init_tensor_scaled_s),
-     (:Float64, :d, :tblis_init_scalar_d, :tblis_init_tensor_d,
-      :tblis_init_tensor_scaled_d),
-     (:ComplexF32, :c, :tblis_init_scalar_c, :tblis_init_tensor_c,
-      :tblis_init_tensor_scaled_c),
-     (:ComplexF64, :z, :tblis_init_scalar_z, :tblis_init_tensor_z,
-      :tblis_init_tensor_scaled_z))
+    (
+        (
+            :Float32, :s, :tblis_init_scalar_s, :tblis_init_tensor_s,
+            :tblis_init_tensor_scaled_s,
+        ),
+        (
+            :Float64, :d, :tblis_init_scalar_d, :tblis_init_tensor_d,
+            :tblis_init_tensor_scaled_d,
+        ),
+        (
+            :ComplexF32, :c, :tblis_init_scalar_c, :tblis_init_tensor_c,
+            :tblis_init_tensor_scaled_c,
+        ),
+        (
+            :ComplexF64, :z, :tblis_init_scalar_z, :tblis_init_tensor_z,
+            :tblis_init_tensor_scaled_z,
+        ),
+    )
     @eval begin
         function tblis_scalar(s::$T)
             t = Ref{tblis_scalar}()
             $tblis_init_scalar(t, s)
             return t[]
         end
-        function tblis_tensor(A::StridedArray{$T,N}, s::Number,
-                              szA::Vector{len_type}, strA::Vector{stride_type}) where {N}
+        function tblis_tensor(
+                A::StridedArray{$T, N}, s::Number,
+                szA::Vector{len_type}, strA::Vector{stride_type}
+            ) where {N}
             t = Ref{tblis_tensor}()
             GC.@preserve A szA strA begin
                 if isone(s)
                     $tblis_init_tensor(t, N, pointer(szA), pointer(A), pointer(strA))
                 else
-                    $tblis_init_tensor_scaled(t, $T(s), N, pointer(szA), pointer(A),
-                                              pointer(strA))
+                    $tblis_init_tensor_scaled(
+                        t, $T(s), N, pointer(szA), pointer(A),
+                        pointer(strA)
+                    )
                 end
             end
             return t[]
@@ -88,8 +102,10 @@ for (T, S, tblis_init_scalar, tblis_init_tensor, tblis_init_tensor_scaled) in
 
         # the arrays and their length/stride buffers are kept alive for the entire
         # duration of the ccall, so TBLIS can never observe a dangling pointer
-        function tblis_tensor_add(α::Number, A::StridedArray{$T}, idxA::AbstractString,
-                                  β::Number, B::StridedArray{$T}, idxB::AbstractString)
+        function tblis_tensor_add(
+                α::Number, A::StridedArray{$T}, idxA::AbstractString,
+                β::Number, B::StridedArray{$T}, idxB::AbstractString
+            )
             szA, strA = _lengths(A), _strides(A)
             szB, strB = _lengths(B), _strides(B)
             GC.@preserve A szA strA B szB strB begin
@@ -100,9 +116,11 @@ for (T, S, tblis_init_scalar, tblis_init_tensor, tblis_init_tensor_scaled) in
             return B
         end
 
-        function tblis_tensor_mult(α::Number, A::StridedArray{$T}, idxA::AbstractString,
-                                   B::StridedArray{$T}, idxB::AbstractString,
-                                   β::Number, C::StridedArray{$T}, idxC::AbstractString)
+        function tblis_tensor_mult(
+                α::Number, A::StridedArray{$T}, idxA::AbstractString,
+                B::StridedArray{$T}, idxB::AbstractString,
+                β::Number, C::StridedArray{$T}, idxC::AbstractString
+            )
             szA, strA = _lengths(A), _strides(A)
             szB, strB = _lengths(B), _strides(B)
             szC, strC = _lengths(C), _strides(C)
@@ -115,8 +133,10 @@ for (T, S, tblis_init_scalar, tblis_init_tensor, tblis_init_tensor_scaled) in
             return C
         end
 
-        function tblis_tensor_dot(α::Number, A::StridedArray{$T}, idxA::AbstractString,
-                                  B::StridedArray{$T}, idxB::AbstractString)
+        function tblis_tensor_dot(
+                α::Number, A::StridedArray{$T}, idxA::AbstractString,
+                B::StridedArray{$T}, idxB::AbstractString
+            )
             szA, strA = _lengths(A), _strides(A)
             szB, strB = _lengths(B), _strides(B)
             result = Ref(tblis_scalar(zero($T)))
@@ -134,22 +154,28 @@ end
 # auto-generated low-level methods, which accept anything and fail obscurely.
 @noinline function _eltype_error(As::StridedArray...)
     msg = "TBLIS requires a common element type in " *
-          "(Float32, Float64, ComplexF32, ComplexF64), got " *
-          join(eltype.(As), ", ")
+        "(Float32, Float64, ComplexF32, ComplexF64), got " *
+        join(eltype.(As), ", ")
     return throw(ArgumentError(msg))
 end
 
-function tblis_tensor_add(::Number, A::StridedArray, ::AbstractString,
-                          ::Number, B::StridedArray, ::AbstractString)
+function tblis_tensor_add(
+        ::Number, A::StridedArray, ::AbstractString,
+        ::Number, B::StridedArray, ::AbstractString
+    )
     return _eltype_error(A, B)
 end
-function tblis_tensor_mult(::Number, A::StridedArray, ::AbstractString,
-                           B::StridedArray, ::AbstractString,
-                           ::Number, C::StridedArray, ::AbstractString)
+function tblis_tensor_mult(
+        ::Number, A::StridedArray, ::AbstractString,
+        B::StridedArray, ::AbstractString,
+        ::Number, C::StridedArray, ::AbstractString
+    )
     return _eltype_error(A, B, C)
 end
-function tblis_tensor_dot(::Number, A::StridedArray, ::AbstractString,
-                          B::StridedArray, ::AbstractString)
+function tblis_tensor_dot(
+        ::Number, A::StridedArray, ::AbstractString,
+        B::StridedArray, ::AbstractString
+    )
     return _eltype_error(A, B)
 end
 

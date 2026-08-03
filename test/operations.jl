@@ -70,9 +70,11 @@ end
 
         Aperm = ndims(A) > 0 ? permutedims(A, tuple(pA...)) : A
         Bperm = ndims(B) > 0 ? permutedims(B, tuple(pB...)) : B
-        AB = α * reshape(reshape(Aperm, prod(sz1), prod(sz2)) *
-                         reshape(Bperm, prod(sz2), prod(sz3)),
-                         sz1..., sz3...)
+        AB = α * reshape(
+            reshape(Aperm, prod(sz1), prod(sz2)) *
+                reshape(Bperm, prod(sz2), prod(sz3)),
+            sz1..., sz3...
+        )
         expected = ndims(C) == 0 ? AB + β * C : permutedims(AB, tuple(pAB...)) + β * C
 
         idx = string(('a' .+ (0:(N1 + N2 + N3 - 1)))...)

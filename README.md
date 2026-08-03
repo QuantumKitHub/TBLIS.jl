@@ -1,6 +1,6 @@
 # TBLIS.jl
 
-[![CI][ci-img]][ci-url] [![Coverage][codecov-img]][codecov-url] [![Aqua QA][aqua-img]][aqua-url] [![Code Style: YAS][style-img]][style-url]
+[![CI][ci-img]][ci-url] [![Coverage][codecov-img]][codecov-url] [![Aqua QA][aqua-img]][aqua-url] [![Code Style: Runic][style-img]][style-url]
 
 [ci-img]: https://github.com/QuantumKitHub/TBLIS.jl/actions/workflows/CI.yml/badge.svg
 [ci-url]: https://github.com/QuantumKitHub/TBLIS.jl/actions/workflows/CI.yml
@@ -11,8 +11,8 @@
 [aqua-img]: https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg
 [aqua-url]: https://github.com/JuliaTesting/Aqua.jl
 
-[style-img]: https://img.shields.io/badge/code%20style-yas-blue.svg
-[style-url]: https://github.com/jrevels/YASGuide
+[style-img]: https://img.shields.io/badge/code_style-%E1%9A%B1%E1%9A%A2%E1%9A%BE%E1%9B%81%E1%9A%B2-black
+[style-url]: https://github.com/fredrikekre/Runic.jl
 
 Julia wrapper for the [TBLIS](https://github.com/devinamatthews/tblis) tensor contraction
 library, which implements tensor addition, contraction and reduction directly on strided

@@ -22,13 +22,6 @@ jobs:
         with:
           version: '1'
       - uses: julia-actions/cache@v3
-      - name: Install JuliaFormatter
-        run: julia -e 'using Pkg; Pkg.add(PackageSpec(; name="JuliaFormatter", version="2"))'
-      - name: Check formatting
-        run: |
-          julia -e '
-            using JuliaFormatter
-            if !format("."; overwrite=false)
-                @error "Some files are not formatted; run `format(\".\")` locally and commit the result."
-                exit(1)
-            end'
+      - uses: fredrikekre/runic-action@v1
+        with:
+          version: '1'

@@ -5,7 +5,7 @@ using Pkg.Artifacts
 using Clang.Generators
 using Clang.Generators.JLLEnvs
 using tblis_jll
-using JuliaFormatter
+import Runic
 
 cd(@__DIR__)
 
@@ -26,11 +26,13 @@ options = load_options(joinpath(@__DIR__, "generator.toml"))
 
 # the platforms tblis_jll actually ships binaries for
 # (x86_64-linux-musl is only available up to tblis_jll 1.2)
-const TARGETS = ["x86_64-apple-darwin14",
-                 "x86_64-linux-gnu",
-                 "x86_64-linux-musl",
-                 "x86_64-unknown-freebsd13.2",
-                 "x86_64-w64-mingw32"]
+const TARGETS = [
+    "x86_64-apple-darwin14",
+    "x86_64-linux-gnu",
+    "x86_64-linux-musl",
+    "x86_64-unknown-freebsd13.2",
+    "x86_64-w64-mingw32",
+]
 
 # run generator for all supported platforms
 for target in TARGETS
@@ -43,5 +45,5 @@ for target in TARGETS
     header_files = [tci_h, tblis_h]
     ctx = create_context(header_files, args, options)
     build!(ctx)
-    format_file(path, YASStyle())
+    Runic.format_file(path; inplace = true)
 end

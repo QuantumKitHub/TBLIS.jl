@@ -25,11 +25,10 @@ tblis_h = joinpath(include_dir, "tblis", "tblis.h")
 options = load_options(joinpath(@__DIR__, "generator.toml"))
 
 # the platforms tblis_jll actually ships binaries for
-# (x86_64-linux-musl is only available up to tblis_jll 1.2)
+# (x86_64-linux-musl was dropped along with the tblis_jll 1.2 line)
 const TARGETS = [
     "x86_64-apple-darwin14",
     "x86_64-linux-gnu",
-    "x86_64-linux-musl",
     "x86_64-unknown-freebsd13.2",
     "x86_64-w64-mingw32",
 ]

@@ -9,13 +9,29 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- Windows is covered by CI again, now that the upstream binary works there ([#33]).
+
 ### Changed
+
+- `tblis_jll` compat is raised to `1.3`. The Windows binaries in the 1.2 line carry the same
+  bug as `1.3.0+0`, so the lower bound keeps them out of a fresh resolve ([#33]).
 
 ### Deprecated
 
 ### Removed
 
+- `x86_64-linux-musl` is no longer supported: `tblis_jll` last shipped a musl binary in the
+  1.2 line, which is now out of compat. Loading TBLIS.jl there gives the usual
+  unsupported-platform error ([#33]).
+
 ### Fixed
+
+- Contractions on Windows aborted the process with `posix_memalign: Invalid argument` as soon
+  as `tblis_tensor_mult` reached the TBLIS GEMM kernels ([#32]). The cause was an argument
+  swap in the MinGW `posix_memalign` shim, fixed upstream in
+  [Yggdrasil#14400](https://github.com/JuliaPackaging/Yggdrasil/pull/14400) and shipped as
+  `tblis_jll` build `1.3.0+1`. Note that `[compat]` bounds cannot pin a build number, so a
+  pinned-down `1.3.0+0` remains broken on Windows ([#33]).
 
 ## [0.3.0](https://github.com/QuantumKitHub/TBLIS.jl/compare/v0.2.0...v0.3.0) - 2026-08-03
 
@@ -133,3 +149,5 @@ changelog.
 [#17]: https://github.com/QuantumKitHub/TBLIS.jl/pull/17
 [#26]: https://github.com/QuantumKitHub/TBLIS.jl/pull/26
 [#27]: https://github.com/QuantumKitHub/TBLIS.jl/pull/27
+[#32]: https://github.com/QuantumKitHub/TBLIS.jl/issues/32
+[#33]: https://github.com/QuantumKitHub/TBLIS.jl/pull/33

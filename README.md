@@ -36,8 +36,13 @@ pkg> add TBLIS
 The TBLIS library itself is supplied by
 [tblis_jll](https://github.com/JuliaBinaryWrappers/tblis_jll.jl), so no manual build step is
 required. Only the platforms for which `tblis_jll` ships a binary are supported -- currently
-`x86_64` Linux (glibc and musl), macOS, FreeBSD and Windows -- and loading TBLIS.jl anywhere
-else errors out with an unsupported-platform message.
+`x86_64` Linux (glibc), macOS, FreeBSD and Windows -- and loading TBLIS.jl anywhere else
+errors out with an unsupported-platform message.
+
+On Windows, contractions require the `tblis_jll` build `1.3.0+1` or newer; earlier builds abort
+the process from inside the TBLIS memory pool. Julia's resolver picks the newest build by
+default, so this only matters if you pin `tblis_jll` yourself -- version bounds in `[compat]`
+cannot express build numbers.
 
 ## Usage
 

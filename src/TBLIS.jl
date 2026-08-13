@@ -15,14 +15,13 @@ const dcomplex = ComplexF64
 
 # include auto-generated lib files
 # only the platforms tblis_jll ships binaries for are covered here
-# (x86_64-linux-musl is only available up to tblis_jll 1.2)
+# (x86_64-linux-musl was dropped along with the tblis_jll 1.2 line, so musl is guarded
+# against here to reach the unsupported-platform error below rather than the glibc bindings)
 const IS_LIBC_MUSL = occursin("musl", Base.BUILD_TRIPLET)
 if Sys.isapple() && Sys.ARCH === :x86_64
     include("lib/x86_64-apple-darwin14.jl")
 elseif Sys.islinux() && Sys.ARCH === :x86_64 && !IS_LIBC_MUSL
     include("lib/x86_64-linux-gnu.jl")
-elseif Sys.islinux() && Sys.ARCH === :x86_64 && IS_LIBC_MUSL
-    include("lib/x86_64-linux-musl.jl")
 elseif Sys.isbsd() && !Sys.isapple() && Sys.ARCH === :x86_64
     include("lib/x86_64-unknown-freebsd13.2.jl")
 elseif Sys.iswindows() && Sys.ARCH === :x86_64
